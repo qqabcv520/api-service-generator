@@ -134,7 +134,7 @@ async function copyAssets(config: GeneratorConfig) {
 }
 
 
-(async () => {
+(async function() {
     console.log('生成中...');
     try {
         const config = loadConfig();
