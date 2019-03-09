@@ -55,16 +55,15 @@ export default class SwaggerParser implements Parser {
      * 把swagger的path对象转成需要的格式
      */
     private pathsToApis(paths: any): Array<ApiData & { tags: string }> {
-        const apis: Array<ApiData & { tags: string }> = [];
-        Object.keys(paths).forEach((pathsKey) => {
+        return Object.keys(paths).flatMap(pathsKey => {
             const methods = paths[pathsKey];
-            Object.keys(methods).forEach((methodsKey) => {
+            return Object.keys(methods).map((methodsKey) => {
                 const method = methods[methodsKey];
-                const api = {
+                return {
                     ...method,
                     path: pathsKey,
                     method: methodsKey,
-                    name: pathsKey,
+                    name: this.getApiName(pathsKey, methodsKey),
                     result: this.definitionToType(method.responses['200'].schema),
                     description: method.summary,
                     parameters: method.parameters && method.parameters.map((value: any) => {
@@ -74,23 +73,19 @@ export default class SwaggerParser implements Parser {
                         };
                     })
                 };
-                api.name = this.getApiName(api);
-                apis.push(api);
             });
         });
-        return apis;
     }
 
     /**
      * 根据API对象生成API名称
      */
-    private getApiName(api: any) {
-        const path = (api.path as string)
-        .replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
+    private getApiName(path: string, method: string) {
+        path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
         .replace(/[\/]?{(\w)/g, ($, $1) => '$' + $1)
         .replace('}', '');
 
-        return api.method + path;
+        return method + path;
     }
 
     /**
@@ -104,32 +99,28 @@ export default class SwaggerParser implements Parser {
      * 把swagger的definitions对象转成需要的格式
      */
     private definitionsToTypes(definitions: any): Definition[] {
-        const types: Definition[] = [];
-        Object.keys(definitions).forEach((definitionKey) => {
+        return Object.keys(definitions).map((definitionKey) => {
             const definition = definitions[definitionKey];
-            types.push({
+            return {
                 name: definitionKey.replace(/[«»](\w?)/g, ($, $1) => { // 首字母大写
                     return $1.toUpperCase();
                 }),
                 ...this.definitionToType(definition)
-            });
+            };
         });
-        return types;
     }
 
     /**
      * 把swagger的definitions对象转成需要的格式
      */
     private propertiesToTypes(properties: any): Definition[] {
-        const types: Definition[] = [];
-        Object.keys(properties).forEach((definitionKey) => {
+        return Object.keys(properties).map((definitionKey) => {
             const definition = properties[definitionKey];
-            types.push({
+            return {
                 name: definitionKey,
                 ...this.definitionToType(definition)
-            });
+            };
         });
-        return types;
     }
 
     /**

@@ -14,7 +14,7 @@ export default class HttpServiceGenerator extends ClassGenerator {
      * 获取依赖数组
      * @param apis
      */
-    private apisToDependencies(apis: ApiData[]  = []): string[] {
+    private apisToDependencies(apis: ApiData[] = []): string[] {
         const dependencies = apis.flatMap(api => {
             if (api.parameters) {
                 const paramsDependence = api.parameters.flatMap(value => this.getDependence(value.type));
@@ -65,15 +65,12 @@ export default class HttpServiceGenerator extends ClassGenerator {
             filename: `${getKebabCase(name)}.service.ts`,
             dependencies: this.apisToDependencies(data.apis),
             apis: data.apis.map(value => {
-                let params: Array<ParametersData & {typeString: string}> = [];
-                if (value.parameters) {
-                    params = value.parameters.map(subValue => {
-                        return {
-                            ...subValue,
-                            typeString: getTypeString(subValue.type)
-                        };
-                    });
-                }
+                const params = value.parameters == null ? [] : value.parameters.map(subValue => {
+                    return {
+                        ...subValue,
+                        typeString: getTypeString(subValue.type)
+                    };
+                });
                 return {
                     ...value,
                     name: getCamelCase(value.name),

@@ -6,8 +6,7 @@ import { EntityGenerateData, HttpServiceGenerateData } from './core';
 import EntityGenerator from './generator/EntityGenerator';
 import HttpServiceGenerator from './generator/HttpServiceGenerator';
 import SwaggerParser from './parser/SwaggerParser';
-import { copyFolder, mkdirsSync, rmdirsSync } from './uitls/fsUtils';
-
+import { mkdirsSync } from './uitls/fsUtils';
 
 
 /**
@@ -22,8 +21,7 @@ export async function generateService(config: GeneratorConfig) {
     for (const project of config.projects) {
         const parser = new SwaggerParser(project.url);
         const modules: HttpServiceGenerateData[] = await parser.getApis();
-        let httpDependencies: string[] = [];
-        modules.forEach((module) => {
+        const httpDependencies = modules.flatMap(module => {
             const includeModule = include(module, config.include);
             const excludedModule = exclude(includeModule, config.exclude);
             if (excludedModule.apis.length > 0) {
@@ -34,8 +32,9 @@ export async function generateService(config: GeneratorConfig) {
                     templatePath: config.serviceTemplatePath,
                     targetPath
                 });
-                httpDependencies = httpDependencies.concat(httpServiceGenerator.getDependencies(excludedModule));
+                return httpServiceGenerator.getDependencies(excludedModule);
             }
+            return [];
         });
         const entityGenerator = new EntityGenerator();
         const entities: EntityGenerateData[] = await parser.getApiEntity();
@@ -53,15 +52,23 @@ export async function generateService(config: GeneratorConfig) {
     }
 }
 
-function getDependencies(entityGenerator: EntityGenerator, dependencies: string[], entities: EntityGenerateData[]) {
+/**
+ * 广度优先遍历，获取class的依赖
+ * @param entityGenerator class生成器，用于解析entities依赖
+ * @param dependencies  待获取的class
+ * @param entities 描述class的对象
+ * @return 依赖的class名数组
+ */
+function getDependencies(entityGenerator: EntityGenerator, dependencies: string[], entities: EntityGenerateData[]): string[] {
 
-    let newDependencies = dependencies;
-    let mergeDependencies = dependencies;
+    let newDependencies = dependencies;  // 待搜索dependencies列表
+    let mergeDependencies = dependencies; // 已搜索dependencies列表
     while (newDependencies.length > 0) {
+        // 新增dependencies放进待搜索列表
         newDependencies = entities.filter((value) => newDependencies.includes(value.name)) // 获取newDependencies的entities
-                .flatMap((value) => entityGenerator.getDependencies(value))
-                .filter((value) => !mergeDependencies.includes(value)); // 不存在于原dependencies，所以是新增dependencies
-        mergeDependencies = mergeDependencies.concat(newDependencies);
+                                  .flatMap((value) => entityGenerator.getDependencies(value)) // 搜索待搜索dependencies列表
+                                  .filter((value) => !mergeDependencies.includes(value)); // 不存在于已搜索dependencies，所以是新增dependencies
+        mergeDependencies = mergeDependencies.concat(newDependencies); // 搜索过的放进已搜索dependencies列表
     }
     return mergeDependencies;
 }
@@ -73,20 +80,15 @@ function include(module: HttpServiceGenerateData, includeList: {path?: string; m
     if (!includeList || includeList.length === 0) {
         return {...module};
     }
-    const newModule: HttpServiceGenerateData = {
+    return {
         ...module,
-        apis: []
+        apis: module.apis.filter((api) => {
+            return includeList.some(value => {
+                return matching(value.path, api.path)
+                    && (value.methods == null || value.methods.includes(api.method));
+            });
+        })
     };
-    module.apis.forEach((api) => {
-        for (const value of includeList) {
-            if (matching(value.path, `${api.path}`)) { // 路径匹配
-                if (value.methods == null || value.methods.includes(api.method)) { // 请求方法匹配
-                    newModule.apis.push(api);
-                }
-            }
-        }
-    });
-    return newModule;
 }
 
 /**
@@ -96,25 +98,15 @@ function exclude(module: HttpServiceGenerateData, excludeList: {path?: string; m
     if (!excludeList || excludeList.length === 0) {
         return {...module};
     }
-    const newModule: HttpServiceGenerateData = {
+    return {
         ...module,
-        apis: []
+        apis: module.apis.filter((api) => {
+            return !excludeList.some(value => {
+                return matching(value.path, api.path)
+                    && (value.methods == null || value.methods.includes(api.method));
+            });
+        })
     };
-    module.apis.forEach((api) => {
-        let flag = true;
-        for (const value of excludeList) {
-            if (matching(value.path, `${api.path}`)) {
-                if (value.methods == null || value.methods.includes(api.method)) {
-                    flag = false;
-                    break;
-                }
-            }
-        }
-        if (flag) {
-            newModule.apis.push(api);
-        }
-    });
-    return newModule;
 }
 
 
