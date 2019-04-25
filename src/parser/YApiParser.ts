@@ -2,18 +2,24 @@ import axios from 'axios';
 import { ApiData, Definition, EntityGenerateData, HttpServiceGenerateData } from '../core';
 import Parser from './Parser';
 
-export default class SwaggerParser implements Parser {
+export default class YApiParser implements Parser {
     private response: any = null;
 
-    public constructor(private url: string) {
+    public constructor(private url: string, private token: string) {
 
     }
 
     public async loadResponse() {
         try {
-            this.response = await axios.get(this.url);
+            this.response = await axios.get(`${this.url}/api/interface/list`, {
+                params: {
+                    token: this.token,
+                    page: 1,
+                    limit: 1000
+                }
+            });
         } catch (e) {
-            throw new Error('swagger接口请求失败：\n' + e);
+            throw new Error('YApi接口请求失败：\n' + e);
         }
     }
 
@@ -81,11 +87,11 @@ export default class SwaggerParser implements Parser {
      * 根据API对象生成API名称
      */
     private getApiName(path: string, method: string) {
-        const name = path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
+        path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
         .replace(/[\/]?{(\w)/g, ($, $1) => '$' + $1)
         .replace('}', '');
 
-        return method + name;
+        return method + path;
     }
 
     /**

@@ -84,7 +84,12 @@ export default class HttpServiceGenerator extends ClassGenerator {
             bodyString() {
                 const params: ParametersData[] = this.params;
                 let str = '';
-                if (params && params.length === 1 && params[0].in === 'body') {
+                if (this.method === 'get') {
+                    str += '{';
+                    str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';
+                    str += '}';
+                    return str === '{}' ? '' : str;
+                } else if (params && params.length === 1 && params[0].in === 'body') {
                     str += `${params[0].name}`;
                 } else {
                     str += '{';
@@ -94,6 +99,9 @@ export default class HttpServiceGenerator extends ClassGenerator {
                 return str === '{}' ? '' : str;
             },
             queryString() {
+                if (this.method === 'get') {
+                    return '';
+                }
                 const params: ParametersData[] = this.params;
                 let str = '{';
                 str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';

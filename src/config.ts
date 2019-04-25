@@ -16,12 +16,13 @@ export interface GeneratorConfig {
     }[];
     projects?: {
         url: string; // api请求路径
+        token: string; // yApi token
         data: {
             baseUrl: string; // 生成http文件名baseURL名称
             prefix: string; // 生成http文件名前缀
         };
     }[];
-    apiType: 'swagger' | 'yApi';
+    apiType: 'swagger' | 'yapi';
     assetsPath?: string;
 }
 
