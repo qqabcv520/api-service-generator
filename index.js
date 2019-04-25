@@ -259,7 +259,13 @@ class HttpServiceGenerator extends ClassGenerator {
         return Object.assign({}, data2, { bodyString() {
                 const params = this.params;
                 let str = '';
-                if (params && params.length === 1 && params[0].in === 'body') {
+                if (this.method === 'get') {
+                    str += '{';
+                    str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';
+                    str += '}';
+                    return str === '{}' ? '' : str;
+                }
+                else if (params && params.length === 1 && params[0].in === 'body') {
                     str += `${params[0].name}`;
                 }
                 else {
@@ -270,6 +276,9 @@ class HttpServiceGenerator extends ClassGenerator {
                 return str === '{}' ? '' : str;
             },
             queryString() {
+                if (this.method === 'get') {
+                    return '';
+                }
                 const params = this.params;
                 let str = '{';
                 str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';
@@ -351,11 +360,11 @@ class SwaggerParser {
     /**
      * 根据API对象生成API名称
      */
-    getApiName(path$$1, method) {
-        path$$1.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
+    getApiName(path, method) {
+        const name = path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
             .replace(/[\/]?{(\w)/g, ($, $1) => '$' + $1)
             .replace('}', '');
-        return method + path$$1;
+        return method + name;
     }
     /**
      * 把swagger返回的对象转成需要的格式
@@ -533,18 +542,20 @@ function copyAssets(config) {
         }
     });
 }
-(() => __awaiter(undefined, void 0, void 0, function* () {
-    console.log('生成中...');
-    try {
-        const config = loadConfig();
-        yield copyAssets(config);
-        yield generateService(config);
-        console.log('生成完成');
-    }
-    catch (e) {
-        console.error('生成失败');
-        console.error(e);
-    }
-}))();
+(function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('生成中...');
+        try {
+            const config = loadConfig();
+            yield copyAssets(config);
+            yield generateService(config);
+            console.log('生成完成');
+        }
+        catch (e) {
+            console.error('生成失败');
+            console.error(e);
+        }
+    });
+})();
 
 exports.generateService = generateService;
