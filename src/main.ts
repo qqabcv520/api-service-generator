@@ -7,7 +7,7 @@ import EntityGenerator from './generator/EntityGenerator';
 import HttpServiceGenerator from './generator/HttpServiceGenerator';
 import SwaggerParser from './parser/SwaggerParser';
 import { mkdirsSync } from './uitls/fsUtils';
-
+import program from 'commander';
 
 /**
  * 生成service
@@ -135,9 +135,17 @@ async function copyAssets(config: GeneratorConfig) {
 
 
 (async function() {
+
+
+    program
+    .version(require('../package.json').version, '-v, --version')  // tslint:disable-line
+    .usage('[options]');
+
+    program.option('-c, --config', '配置文件路径').parse(process.argv);
+
     console.log('生成中...');
     try {
-        const config = loadConfig();
+        const config = loadConfig(program.config);
         await copyAssets(config);
         await generateService(config);
         console.log('生成完成');

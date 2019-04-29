@@ -1,14 +1,14 @@
 {
   "name": "api-service-generator",
-  "version": "1.4.3",
+  "version": "1.5.2",
   "description": "api generator",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": {
-    "gen": "bin.js"
+    "gen": "bin/bin.js"
   },
   "scripts": {
     "build": "rollup -c",
-    "run": "node ./index.js"
+    "run": "node dist/index.js"
   },
   "keywords": [
     "generator",
@@ -18,8 +18,8 @@
   "author": "mifan",
   "license": "MIT",
   "files": [
-    "index.js",
-    "bin.js",
+    "dist/index.js",
+    "bin/bin.js",
     "generate.conf.js",
     "template"
   ],
@@ -37,9 +37,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "micromatch": "^3.1.10",
-    "mustache": "^3.0.1",
+    "commander": "^2.20.0",
     "core-js": "^2.6.3",
-    "fs-extra": "^7.0.1"
+    "fs-extra": "^7.0.1",
+    "micromatch": "^3.1.10",
+    "mustache": "^3.0.1"
   }
 }

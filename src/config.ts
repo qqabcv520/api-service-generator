@@ -40,12 +40,14 @@ const defaultConfig: GeneratorConfig = {
 };
 
 
-export function loadConfig(): GeneratorConfig {
-    const configPath = process.argv[2] || defaultConfigPath;
+export function loadConfig(configPath: string = defaultConfigPath): GeneratorConfig {
+    const absolutePath = path.join(process.cwd(), configPath);
     try {
-        const userConfig: GeneratorConfig = require(path.join(process.cwd(), configPath));
+        const userConfig: GeneratorConfig = require(absolutePath);
         return {...defaultConfig, ...userConfig};
     } catch (e) {
-        throw new Error('加载配置文件失败\n' + e);
+        throw new Error(`加载配置文件失败:${absolutePath}\n' ${e}`);
     }
 }
+
+
