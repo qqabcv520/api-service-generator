@@ -13,4 +13,3 @@ export default interface HttpResult<T> {
   success: boolean;
   targetUrl?: string;
 }
-
