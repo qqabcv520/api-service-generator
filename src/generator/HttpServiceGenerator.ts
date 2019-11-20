@@ -83,17 +83,19 @@ export default class HttpServiceGenerator extends ClassGenerator {
             ...data2,
             bodyString() {
                 const params: ParametersData[] = this.params;
+                const queryParams = params ? params.filter((value: ParametersData) => value.in === 'query') : [];
+                const bodyParams = params ? params.filter((value: ParametersData) => value.in === 'body') : [];
                 let str = '';
                 if (this.method === 'get') {
                     str += '{';
-                    str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';
+                    str += queryParams.map(value => value.name).join(', ');
                     str += '}';
                     return str === '{}' ? '' : str;
-                } else if (params && params.length === 1 && params[0].in === 'body') {
-                    str += `${params[0].name}`;
+                } else if (bodyParams && bodyParams.length === 1 && bodyParams[0].in === 'body') {
+                    str += `${bodyParams[0].name}`;
                 } else {
                     str += '{';
-                    str += params ? params.filter((value: ParametersData) => value.in === 'body').map(value => value.name).join(', ') : '';
+                    str += bodyParams.map(value => value.name).join(', ');
                     str += '}';
                 }
                 return str === '{}' ? '' : str;

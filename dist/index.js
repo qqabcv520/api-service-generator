@@ -261,19 +261,21 @@ class HttpServiceGenerator extends ClassGenerator {
             }) });
         return Object.assign({}, data2, { bodyString() {
                 const params = this.params;
+                const queryParams = params ? params.filter((value) => value.in === 'query') : [];
+                const bodyParams = params ? params.filter((value) => value.in === 'body') : [];
                 let str = '';
                 if (this.method === 'get') {
                     str += '{';
-                    str += params ? params.filter(value => value.in === 'query').map(value => value.name).join(', ') : '';
+                    str += queryParams.map(value => value.name).join(', ');
                     str += '}';
                     return str === '{}' ? '' : str;
                 }
-                else if (params && params.length === 1 && params[0].in === 'body') {
-                    str += `${params[0].name}`;
+                else if (bodyParams && bodyParams.length === 1 && bodyParams[0].in === 'body') {
+                    str += `${bodyParams[0].name}`;
                 }
                 else {
                     str += '{';
-                    str += params ? params.filter((value) => value.in === 'body').map(value => value.name).join(', ') : '';
+                    str += bodyParams.map(value => value.name).join(', ');
                     str += '}';
                 }
                 return str === '{}' ? '' : str;
@@ -419,7 +421,7 @@ class SwaggerParser {
             }
         }
         else if (definition.type === 'object' && definition.properties !== undefined) {
-            type.type = 'object';
+            type.type = 'any';
             type.properties = this.propertiesToTypes(definition.properties);
         }
         else if (definition.type === 'ref') {
