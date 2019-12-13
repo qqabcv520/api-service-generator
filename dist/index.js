@@ -254,7 +254,8 @@ class HttpServiceGenerator extends ClassGenerator {
     getTemplateModel(data) {
         const name = getPascalCase(data.prefix ? data.prefix + data.name : data.name).replace('Controller', '');
         const data2 = Object.assign({}, data, { name, filename: `${getKebabCase(name)}.service.ts`, dependencies: this.apisToDependencies(data.apis), apis: data.apis.map(value => {
-                const params = value.parameters == null ? [] : value.parameters.map(subValue => {
+                const params = value.parameters == null ? [] : value.parameters
+                    .filter(subValue => subValue.in === 'body' || subValue.in === 'path' || subValue.in === 'query').map(subValue => {
                     return Object.assign({}, subValue, { typeString: getTypeString(subValue.type) });
                 });
                 return Object.assign({}, value, { name: getCamelCase(value.name), returnType: getTypeString(value.result), params });
