@@ -41,7 +41,7 @@ export interface Definition {
 }
 export interface ParametersData {
     description?: string;
-    'in': 'body' | 'query' | 'path';
+    'in': 'body' | 'query' | 'path' | 'header';
     name?: string;
     required?: boolean;
     type?: Definition;

@@ -65,7 +65,8 @@ export default class HttpServiceGenerator extends ClassGenerator {
             filename: `${getKebabCase(name)}.service.ts`,
             dependencies: this.apisToDependencies(data.apis),
             apis: data.apis.map(value => {
-                const params = value.parameters == null ? [] : value.parameters.map(subValue => {
+                const params = value.parameters == null ? [] : value.parameters
+                .filter(subValue => subValue.in === 'body' || subValue.in === 'path' || subValue.in === 'query').map(subValue => {
                     return {
                         ...subValue,
                         typeString: getTypeString(subValue.type)
