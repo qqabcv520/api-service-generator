@@ -14,7 +14,7 @@ module.exports = {
     // ], // 不生成的接口过滤，会覆盖include配置
     projects: [
         {
-            url: 'http://192.168.1.146:8084/common/v2/api-docs',
+            url: 'http://172.16.5.14:8080/saleslister/v2/api-docs',
             data: {
                 baseUrl: 'common',
                 prefix: ''

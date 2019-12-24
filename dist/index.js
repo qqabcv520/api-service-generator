@@ -55,7 +55,7 @@ function loadConfig(configPath = defaultConfigPath) {
     const absolutePath = path__default.join(process.cwd(), configPath);
     try {
         const userConfig = require(absolutePath);
-        return Object.assign({}, defaultConfig, userConfig);
+        return Object.assign(Object.assign({}, defaultConfig), userConfig);
     }
     catch (e) {
         throw new Error(`加载配置文件失败:${absolutePath}\n' ${e}`);
@@ -174,7 +174,7 @@ class EntityGenerator extends ClassGenerator {
             name,
             filename: `${name}.ts`,
             properties: data.properties && data.properties.map((value) => {
-                return Object.assign({}, value, { typeStr: this.getTypeString(value) });
+                return Object.assign(Object.assign({}, value), { typeStr: this.getTypeString(value) });
             }),
             dependencies: this.getDependencies(data).filter((value) => value !== data.name)
         };
@@ -253,14 +253,14 @@ class HttpServiceGenerator extends ClassGenerator {
     }
     getTemplateModel(data) {
         const name = getPascalCase(data.prefix ? data.prefix + data.name : data.name).replace('Controller', '');
-        const data2 = Object.assign({}, data, { name, filename: `${getKebabCase(name)}.service.ts`, dependencies: this.apisToDependencies(data.apis), apis: data.apis.map(value => {
+        const data2 = Object.assign(Object.assign({}, data), { name, filename: `${getKebabCase(name)}.service.ts`, dependencies: this.apisToDependencies(data.apis), apis: data.apis.map(value => {
                 const params = value.parameters == null ? [] : value.parameters
                     .filter(subValue => subValue.in === 'body' || subValue.in === 'path' || subValue.in === 'query').map(subValue => {
-                    return Object.assign({}, subValue, { typeString: getTypeString(subValue.type) });
+                    return Object.assign(Object.assign({}, subValue), { typeString: getTypeString(subValue.type) });
                 });
-                return Object.assign({}, value, { name: getCamelCase(value.name), returnType: getTypeString(value.result), params });
+                return Object.assign(Object.assign({}, value), { name: getCamelCase(value.name), returnType: getTypeString(value.result), params });
             }) });
-        return Object.assign({}, data2, { bodyString() {
+        return Object.assign(Object.assign({}, data2), { bodyString() {
                 const params = this.params;
                 const queryParams = params ? params.filter((value) => value.in === 'query') : [];
                 const bodyParams = params ? params.filter((value) => value.in === 'body') : [];
@@ -346,7 +346,7 @@ class SwaggerParser {
     transformApis(data) {
         const apis = this.pathsToApis(data.paths);
         return data.tags.map((tag) => {
-            return Object.assign({}, tag, { apis: apis.filter((value) => value.tags.indexOf(tag.name) !== -1) });
+            return Object.assign(Object.assign({}, tag), { apis: apis.filter((value) => value.tags.indexOf(tag.name) !== -1) });
         });
     }
     /**
@@ -357,8 +357,8 @@ class SwaggerParser {
             const methods = paths[pathsKey];
             return Object.keys(methods).map((methodsKey) => {
                 const method = methods[methodsKey];
-                return Object.assign({}, method, { path: pathsKey, method: methodsKey, name: this.getApiName(pathsKey, methodsKey), result: this.definitionToType(method.responses['200'].schema), description: method.summary, parameters: method.parameters && method.parameters.map((value) => {
-                        return Object.assign({}, value, { type: this.definitionToType(value.schema || value) });
+                return Object.assign(Object.assign({}, method), { path: pathsKey, method: methodsKey, name: this.getApiName(pathsKey, methodsKey), result: this.definitionToType(method.responses['200'].schema), description: method.summary, parameters: method.parameters && method.parameters.map((value) => {
+                        return Object.assign(Object.assign({}, value), { type: this.definitionToType(value.schema || value) });
                     }) });
             });
         });
@@ -422,8 +422,11 @@ class SwaggerParser {
             }
         }
         else if (definition.type === 'object' && definition.properties !== undefined) {
-            type.type = 'any';
+            type.type = 'object';
             type.properties = this.propertiesToTypes(definition.properties);
+        }
+        else if (definition.type === 'object' && definition.properties === undefined) {
+            type.type = 'any';
         }
         else if (definition.type === 'ref') {
             type.type = 'any';
@@ -935,7 +938,7 @@ Command.prototype.parse = function(argv) {
     })[0];
   }
 
-  if (this._execs[name] && typeof this._execs[name] !== 'function') {
+  if (this._execs[name] === true) {
     return this.executeSubCommand(argv, args, parsed.unknown);
   } else if (aliasCommand) {
     // is alias of a subCommand
@@ -1695,7 +1698,7 @@ function generateService(config) {
                 const excludedModule = exclude(includeModule, config.exclude);
                 if (excludedModule.apis.length > 0) {
                     const targetPath = config.path + config.servicePath;
-                    httpServiceGenerator.generate(Object.assign({}, excludedModule, { data: project.data, templatePath: config.serviceTemplatePath, targetPath }));
+                    httpServiceGenerator.generate(Object.assign(Object.assign({}, excludedModule), { data: project.data, templatePath: config.serviceTemplatePath, targetPath }));
                     return httpServiceGenerator.getDependencies(excludedModule);
                 }
                 return [];
@@ -1706,7 +1709,7 @@ function generateService(config) {
             entities.filter((value) => dependencies.includes(value.name))
                 .forEach((entity) => {
                 const targetPath = config.path + config.entityPath;
-                entityGenerator.generate(Object.assign({}, entity, { data: project.data, templatePath: config.entityTemplatePath, targetPath }));
+                entityGenerator.generate(Object.assign(Object.assign({}, entity), { data: project.data, templatePath: config.entityTemplatePath, targetPath }));
             });
         }
     });
@@ -1737,7 +1740,7 @@ function include(module, includeList) {
     if (!includeList || includeList.length === 0) {
         return Object.assign({}, module);
     }
-    return Object.assign({}, module, { apis: module.apis.filter((api) => {
+    return Object.assign(Object.assign({}, module), { apis: module.apis.filter((api) => {
             return includeList.some(value => {
                 return matching(value.path, api.path)
                     && (value.methods == null || value.methods.includes(api.method));
@@ -1751,7 +1754,7 @@ function exclude(module, excludeList) {
     if (!excludeList || excludeList.length === 0) {
         return Object.assign({}, module);
     }
-    return Object.assign({}, module, { apis: module.apis.filter((api) => {
+    return Object.assign(Object.assign({}, module), { apis: module.apis.filter((api) => {
             return !excludeList.some(value => {
                 return matching(value.path, api.path)
                     && (value.methods == null || value.methods.includes(api.method));
