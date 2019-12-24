@@ -144,8 +144,10 @@ export default class SwaggerParser implements Parser {
                 type.items = this.definitionToType(definition.items);
             }
         } else if (definition.type === 'object' && definition.properties !== undefined) {
-            type.type = 'any';
+            type.type = 'object';
             type.properties = this.propertiesToTypes(definition.properties);
+        }  else if (definition.type === 'object' && definition.properties === undefined) {
+            type.type = 'any';
         } else if (definition.type === 'ref') {
             type.type = 'any';
         } else {
