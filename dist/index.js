@@ -382,7 +382,7 @@ class SwaggerParser {
      * 把swagger的definitions对象转成需要的格式
      */
     definitionsToTypes(definitions) {
-        return Object.keys(definitions).map((definitionKey) => {
+        return Object.keys(definitions || {}).map((definitionKey) => {
             const definition = definitions[definitionKey];
             return Object.assign({ name: definitionKey.replace(/[«»](\w?)/g, ($, $1) => {
                     return $1.toUpperCase();

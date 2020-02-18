@@ -105,7 +105,7 @@ export default class YApiParser implements Parser {
      * 把swagger的definitions对象转成需要的格式
      */
     private definitionsToTypes(definitions: any): Definition[] {
-        return Object.keys(definitions).map((definitionKey) => {
+        return Object.keys(definitions || {}).map((definitionKey) => {
             const definition = definitions[definitionKey];
             return {
                 name: definitionKey.replace(/[«»](\w?)/g, ($, $1) => { // 首字母大写
