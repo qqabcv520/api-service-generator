@@ -58,7 +58,7 @@ export default class HttpServiceGenerator extends ClassGenerator {
     }
 
     getTemplateModel(data: HttpServiceGenerateData): any {
-        const name = getPascalCase(data.prefix ? data.prefix + data.name : data.name).replace('Controller', '');
+        const name = getPascalCase(data.data.prefix ? data.data.prefix + data.name : data.name).replace('Controller', '');
         const data2 = {
             ...data,
             name,
