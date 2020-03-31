@@ -6,7 +6,7 @@ module.exports = {
     serviceTemplatePath: './template/service.js',
     entityTemplatePath: './template/entity.js',
     include: [
-        {path: '/user/get_login_user', methods: ['post']},
+        {path: '**'},
     ], // 包含需要生产的接口
     // exclude: [
     //     {path: '**', methods: ['delete', 'put', 'options', 'patch', 'head']},
@@ -14,10 +14,10 @@ module.exports = {
     // ], // 不生成的接口过滤，会覆盖include配置
     projects: [
         {
-            url: 'http://172.16.5.14:8080/saleslister/v2/api-docs',
+            url: 'http://192.168.1.146:8520/v2/api-docs',
             data: {
                 baseUrl: 'common',
-                prefix: ''
+                prefix: 'abc'
             }
         },
     ],

@@ -17,8 +17,11 @@ export class {{name}}Service {
   }
 
   {{#apis}}
-  // {{{description}}}
-  {{{name}}}({{#params}}{{{name}}}?: {{{typeString}}}, {{/params}}options?): Promise<{{{returnType}}}> {
+  /**
+   * {{{description}}}{{#params}}
+   * @param {{{name}}} {{{description}}}{{/params}}
+   */
+  {{{name}}}({{#params}}{{{name}}}?: {{{typeString}}}, {{/params}}options?: any): Promise<{{{returnType}}}> {
     return this.http.{{method}}<HttpResult<{{{returnType}}}>>({{{pathString}}}, {{{bodyString}}}{{^bodyString}}null{{/bodyString}}, {...options{{#queryString}}, params: {{/queryString}}{{{queryString}}}})
            .pipe(map(value => value.result)).toPromise();
   }

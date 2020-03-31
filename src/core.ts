@@ -1,7 +1,7 @@
 import { ClassGenerateData } from './generator/ClassGenerator';
 
 export interface GenerateData {
-    data?: any;
+    data?: { [key: string]: any};
     description?: string;
     templatePath: string;
 }

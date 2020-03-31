@@ -62,31 +62,6 @@ function loadConfig(configPath = defaultConfigPath) {
     }
 }
 
-/**
- * 短横线/下横线/帕斯卡 转 驼峰命名
- */
-function getCamelCase(str) {
-    const reg = /(^|-|_)(\w)/g;
-    const reg2 = /^(\w)/g;
-    return str.replace(reg, ($, $1, $2) => $2.toUpperCase())
-        .replace(reg2, ($, $1) => $1.toLowerCase());
-}
-/**
- * 短横线/下横线/驼峰 转 帕斯卡命名
- */
-function getPascalCase(str) {
-    const reg = /(^|-|_)(\w)/g;
-    return str.replace(reg, ($, $1, $2) => $2.toUpperCase());
-}
-/**
- * 驼峰/下横线/帕斯卡 转 短横线命名
- */
-function getKebabCase(str) {
-    const reg = /^(\w)/g;
-    const reg2 = /([A-Z]|_)/g;
-    return str.replace(reg, ($, $1) => $1.toLowerCase()).replace(reg2, ($, $1) => '-' + $1.toLowerCase());
-}
-
 function mkdirsSync(dirPath) {
     if (fs.existsSync(dirPath)) {
         return true;
@@ -169,16 +144,44 @@ class EntityGenerator extends ClassGenerator {
         return [];
     }
     getTemplateModel(data) {
-        const name = getPascalCase(data.name);
         return {
-            name,
-            filename: `${name}.ts`,
+            name: data.name,
+            description: data.description,
+            filename: `${data.name}.ts`,
             properties: data.properties && data.properties.map((value) => {
                 return Object.assign(Object.assign({}, value), { typeStr: this.getTypeString(value) });
             }),
             dependencies: this.getDependencies(data).filter((value) => value !== data.name)
         };
     }
+}
+
+/**
+ * 短横线/下划线/小驼峰 转 大驼峰命名(UpperCamelCase)
+ */
+function getUpperCamelCase(str) {
+    const reg = /(^|-|_)(\w)/g;
+    return str.replace(reg, ($, $1, $2) => $2.toUpperCase());
+}
+/**
+ * 短横线/下横线/大驼峰 转 小驼峰命名(lowerCamelCase)
+ */
+function getLowerCamelCase(str) {
+    const reg = /(^|-|_)(\w)/g;
+    const reg2 = /^(\w)/g;
+    return str.replace(reg, ($, $1, $2) => $2.toUpperCase())
+        .replace(reg2, ($, $1) => $1.toLowerCase());
+}
+/**
+ * 驼峰/下划线 转 短横线命名(kebab-case)
+ */
+function getKebabCase(str) {
+    const reg = /^([A-Z$]+)/g;
+    const reg2 = /_([a-zA-Z$]+)/g;
+    const reg3 = /([A-Z$]+)/g;
+    return str.replace(reg, ($, $1) => $1.toLowerCase())
+        .replace(reg2, ($, $1) => '-' + $1.toLowerCase())
+        .replace(reg3, ($, $1) => '-' + $1.toLowerCase());
 }
 
 function getTypeString(type) {
@@ -252,13 +255,13 @@ class HttpServiceGenerator extends ClassGenerator {
         return [];
     }
     getTemplateModel(data) {
-        const name = getPascalCase(data.data.prefix ? data.data.prefix + data.name : data.name).replace('Controller', '');
+        const name = getUpperCamelCase(data.data.prefix ? data.data.prefix + data.name : data.name).replace('Controller', '');
         const data2 = Object.assign(Object.assign({}, data), { name, filename: `${getKebabCase(name)}.service.ts`, dependencies: this.apisToDependencies(data.apis), apis: data.apis.map(value => {
                 const params = value.parameters == null ? [] : value.parameters
                     .filter(subValue => subValue.in === 'body' || subValue.in === 'path' || subValue.in === 'query').map(subValue => {
                     return Object.assign(Object.assign({}, subValue), { typeString: getTypeString(subValue.type) });
                 });
-                return Object.assign(Object.assign({}, value), { name: getCamelCase(value.name), returnType: getTypeString(value.result), params });
+                return Object.assign(Object.assign({}, value), { name: getLowerCamelCase(value.name), returnType: getTypeString(value.result), params });
             }) });
         return Object.assign(Object.assign({}, data2), { bodyString() {
                 const params = this.params;

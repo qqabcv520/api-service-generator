@@ -1,4 +1,4 @@
-import { getCamelCase, getKebabCase, getPascalCase } from '../uitls/caseUtils';
+import { getLowerCamelCase, getKebabCase, getUpperCamelCase } from '../uitls/caseUtils';
 import { getTypeString } from '../uitls/classUtils';
 import ClassGenerator from './ClassGenerator';
 import { ApiData, Definition, HttpServiceGenerateData, ParametersData } from '../core';
@@ -58,7 +58,7 @@ export default class HttpServiceGenerator extends ClassGenerator {
     }
 
     getTemplateModel(data: HttpServiceGenerateData): any {
-        const name = getPascalCase(data.data.prefix ? data.data.prefix + data.name : data.name).replace('Controller', '');
+        const name = getUpperCamelCase(data.data.prefix ? data.data.prefix + data.name : data.name).replace('Controller', '');
         const data2 = {
             ...data,
             name,
@@ -74,7 +74,7 @@ export default class HttpServiceGenerator extends ClassGenerator {
                 });
                 return {
                     ...value,
-                    name: getCamelCase(value.name),
+                    name: getLowerCamelCase(value.name),
                     returnType: getTypeString(value.result),
                     params
                 };

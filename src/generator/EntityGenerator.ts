@@ -1,5 +1,5 @@
 import { Definition, EntityGenerateData } from '../core';
-import { getPascalCase } from '../uitls/caseUtils';
+import { getUpperCamelCase } from '../uitls/caseUtils';
 import ClassGenerator from './ClassGenerator';
 
 
@@ -60,10 +60,10 @@ export default class EntityGenerator extends ClassGenerator {
     }
 
     public getTemplateModel(data: EntityGenerateData): any {
-        const name = getPascalCase(data.name);
         return {
-            name,
-            filename: `${name}.ts`,
+            name: data.name,
+            description: data.description,
+            filename: `${data.name}.ts`,
             properties: data.properties && data.properties.map((value) => {
                 return {
                     ...value,
