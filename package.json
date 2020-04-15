@@ -1,6 +1,6 @@
 {
   "name": "api-service-generator",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "description": "api generator",
   "main": "dist/index.js",
   "bin": {

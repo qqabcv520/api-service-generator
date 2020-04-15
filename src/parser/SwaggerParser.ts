@@ -83,7 +83,7 @@ export default class SwaggerParser implements Parser {
     private getApiName(path: string, method: string) {
         const name = path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
         .replace(/[\/]?{(\w)/g, ($, $1) => '$' + $1)
-        .replace('}', '');
+        .replace(/}/g, '');
 
         return method + name;
     }

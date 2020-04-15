@@ -113,7 +113,7 @@ export default class HttpServiceGenerator extends ClassGenerator {
             },
             pathString() {
                 let str = '`';
-                str += this.path.replace('{', '${');
+                str += this.path.replace(/{/g, '${');
                 str += '`';
                 return str;
             }
