@@ -20,6 +20,7 @@ export class {{name}}Service {
   /**
    * {{{description}}}{{#params}}
    * @param {{{name}}} {{{description}}}{{/params}}
+   * @param options 请求选项参数
    */
   {{{name}}}({{#params}}{{{name}}}?: {{{typeString}}}, {{/params}}options?: any): Promise<{{{returnType}}}> {
     return this.http.{{method}}<HttpResult<{{{returnType}}}>>({{{pathString}}}, {{{bodyString}}}{{^bodyString}}null{{/bodyString}}, {...options{{#queryString}}, params: {{/queryString}}{{{queryString}}}})

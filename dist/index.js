@@ -296,7 +296,7 @@ class HttpServiceGenerator extends ClassGenerator {
             },
             pathString() {
                 let str = '`';
-                str += this.path.replace('{', '${');
+                str += this.path.replace(/{/g, '${');
                 str += '`';
                 return str;
             } });
@@ -372,7 +372,7 @@ class SwaggerParser {
     getApiName(path, method) {
         const name = path.replace(/[\/_](\w)/g, ($, $1) => $1.toUpperCase())
             .replace(/[\/]?{(\w)/g, ($, $1) => '$' + $1)
-            .replace('}', '');
+            .replace(/}/g, '');
         return method + name;
     }
     /**
