@@ -102,9 +102,7 @@ export default class SwaggerParser implements Parser {
         return Object.keys(definitions || {}).map((definitionKey) => {
             const definition = definitions[definitionKey];
             return {
-                name: definitionKey.replace(/[«»](\w?)/g, ($, $1) => { // 首字母大写
-                    return $1.toUpperCase();
-                }),
+                name: this.definitionNameToClassName(definitionKey),
                 ...this.definitionToType(definition)
             };
         });
@@ -161,11 +159,11 @@ export default class SwaggerParser implements Parser {
      * 引用路径转实体名
      */
     private refToEntityName(ref: string) {
-        // 格式： #/definitions/SkuListing
-        return ref.substring(ref.lastIndexOf('/') + 1).replace(/[«»](\w?)/g, ($, $1) => { // 首字母大写
-            return $1.toUpperCase();
-        });
+        // 格式： #/definitions/ResultDto«Map«int,string»»
+        return this.definitionNameToClassName(ref.substring(ref.lastIndexOf('/') + 1));
     }
 
-
+    private definitionNameToClassName(definitionName: string): string {
+        return definitionName.replace(/[«»,]([a-z]?)/g, ($, $1) => $1.toUpperCase()); // // 首字母大写
+    }
 }

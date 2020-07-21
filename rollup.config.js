@@ -18,5 +18,5 @@ export default {
         commonjs({extensions: ['.js', '.ts']}),
     ],
     // 指出应将哪些模块视为外部模块
-    external: id => /core-js/.test(id)
+    external: id => /node_modules/.test(id)
 }
